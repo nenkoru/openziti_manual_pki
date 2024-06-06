@@ -1,1 +1,9 @@
-*.key*
+*.key
+*.cert
+*.crt
+*.csr
+*.pem
+*.cas
+*.jwt
+*.db
+

@@ -23,7 +23,7 @@ By having these assumptions and this whole backstory I started my journey.
 
 I have made this PKI by thoroughly looking through this[4] forum and two videos[5][6] as well as the from-scratch.sh[7] and this ziti-cli-functions[8] script from the quickstart.
 
-From this point refer to CREATE_PKI.md
+From this point refer to BOOTSTRAP_PKI.md
 
 [1] https://openziti.discourse.group/t/general-architecture-questions/2210
 

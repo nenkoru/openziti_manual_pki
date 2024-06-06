@@ -1,224 +1,223 @@
-1. Copy the root ca of the bayfut
-`cp ~/code/repos/bayfut_pki/pems/bayfut_root_ca.pem`
-or from the trust root, or from the github
-
-2.  
+1. Create a self-signed root CA
 ```
-cat > engine.conf <<EOF
-openssl_conf = openssl_init
- 
-[openssl_init]
-engines = engine_section
- 
-[engine_section]
-pkcs11 = pkcs11_section
- 
-[pkcs11_section]
-engine_id = pkcs11
-dynamic_path = /opt/homebrew/lib/engines-3/pkcs11.dylib
-MODULE_PATH = /opt/homebrew/lib/libykcs11.dylib
-default_algorithms = ALL
-
-EOF
+openssl req \
+    -new -x509 \
+    -days 3650 \
+    -keyout ./pki/root_ca.key \
+    -subj "/C=US/ST=ST=Los Angeles/O=MyBestOrg/CN=MyBestOrg" \
+    -out ./pki/root_ca.cert \
+    -config ./pki/extensions.conf \
+    -extensions v3_ca \
+    -nodes
 ```
-3. alias yubissl='OPENSSL_CONF=engine.conf openssl' (possibly into the .zshrc)
-
-4. Create an alias for yubissl
-`alias yubissl='OPENSSL_CONF=engine.conf openssl'`
-
-5. Create an intermediate CA for Openziti
+2. Create an intermediate CA for Openziti
 ```
-openssl genrsa -aes256 \
-    -out ./pems/openziti_ica.key.pem 2048
+openssl genrsa -out ./pki/cas/openziti_ica.key 2048
 
 openssl req -new -sha256 \
-    -key ./pems/openziti_ica.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Bayfut/OU=Openziti ICA" \
-    -out ./pems/openziti_ica.pem.csr
+    -key ./pki/cas/openziti_ica.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=MyBestOrg/OU=Openziti ICA" \
+    -out ./pki/cas/openziti_ica.csr
 
-yubissl x509 \
-    -req -in ./pems/openziti_ica.pem.csr \
-    -CA ./pems/bayfut_root_ca.pem \
-    -CAkeyform engine \
-    -engine pkcs11 \
-    -CAkey slot_0-id_1 \
+openssl x509 \
+    -req -in ./pki/cas/openziti_ica.csr \
+    -CA ./pki/root_ca.cert \
+    -CAkey ./pki/root_ca.key \
     -days 600 \
     -extensions v3_intermediate_ca \
-    -extfile extensions.conf \
-    -out "./pems/openziti_ica.pem"
+    -extfile ./pki/extensions.conf \
+    -out "./pki/cas/openziti_ica.cert"
 ```
 
-6. Create a control-plane intermediate CA
+3. Create a network components intermediate CA
 ```
-openssl genrsa -aes256 \
-    -out ./pems/openziti_controlplane_ica.key.pem 2048
+openssl genrsa \
+    -out ./pki/cas/openziti_network_components_ica.key 2048
 
 openssl req -new -sha256 \
-    -key ./pems/openziti_controlplane_ica.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Bayfut/OU=Openziti ControlPlane ICA" \
-    -out ./pems/openziti_controlplane_ica.pem.csr
+    -key ./pki/cas/openziti_network_components_ica.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=MyBestOrg/OU=Openziti Network Components ICA" \
+    -out ./pki/cas/openziti_network_components_ica.csr
 
 openssl x509 \
-    -req -in ./pems/openziti_controlplane_ica.pem.csr \
-    -CA ./pems/openziti_ica.pem \
-    -CAkey ./pems/openziti_ica.key.pem \
+    -req -in ./pki/cas/openziti_network_components_ica.csr \
+    -CA ./pki/cas/openziti_ica.cert \
+    -CAkey ./pki/cas/openziti_ica.key \
     -days 600 \
     -extensions v3_intermediate_ca_end_certs_only \
-    -extfile extensions.conf \
-    -out "./pems/openziti_controlplane_ica.pem"
+    -extfile ./pki/extensions.conf \
+    -out "./pki/cas/openziti_network_components_ica.cert"
 ```
 
-7. Create a edge intermediate CA
+4. Create an edge intermediate CA
 ```
-openssl genrsa -aes256 \
-    -out ./pems/openziti_edge_ica.key.pem 2048
+openssl genrsa \
+    -out ./pki/cas/openziti_edge_ica.key 2048
 
 openssl req -new -sha256 \
-    -key ./pems/openziti_edge_ica.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Bayfut/OU=Openziti ControlPlane ICA" \
-    -out ./pems/openziti_edge_ica.pem.csr
+    -key ./pki/cas/openziti_edge_ica.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=MyBestOrg/OU=Openziti Edge ICA" \
+    -out ./pki/cas/openziti_edge_ica.csr
 
 openssl x509 \
-    -req -in ./pems/openziti_edge_ica.pem.csr \
-    -CA ./pems/openziti_ica.pem \
-    -CAkey ./pems/openziti_ica.key.pem \
+    -req -in ./pki/cas/openziti_edge_ica.csr \
+    -CA ./pki/cas/openziti_ica.cert \
+    -CAkey ./pki/cas/openziti_ica.key \
     -days 600 \
     -extensions v3_intermediate_ca_end_certs_only \
-    -extfile extensions.conf \
-    -out "./pems/openziti_edge_ica.pem"
+    -extfile ./pki/extensions.conf \
+    -out "./pki/cas/openziti_edge_ica.cert"
 ```
-8. Create a sign(identities) intermediate CA
+5. Create a sign(identities) intermediate CA
 ```
-openssl genrsa -aes256 \
-    -out ./pems/openziti_sign_ica.key.pem 2048
-
-openssl rsa \
-    -in ./cas/openziti_sign_ica.key.pem \
-    -out ./cas/openziti_sign_ica.key.pem
+openssl genrsa \
+    -out ./pki/cas/openziti_sign_ica.key 2048
 
 openssl req -new -sha256 \
-    -key ./pems/openziti_sign_ica.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Bayfut/OU=Openziti Sign ICA" \
-    -out ./pems/openziti_sign_ica.pem.csr
+    -key ./pki/cas/openziti_sign_ica.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=MyBestOrg/OU=Openziti Sign ICA" \
+    -out ./pki/cas/openziti_sign_ica.csr
 
 openssl x509 \
-    -req -in ./pems/openziti_sign_ica.pem.csr \
-    -CA ./pems/openziti_ica.pem \
-    -CAkey ./pems/openziti_ica.key.pem \
+    -req -in ./pki/cas/openziti_sign_ica.csr \
+    -CA ./pki/cas/openziti_ica.cert \
+    -CAkey ./pki/cas/openziti_ica.key \
     -days 600 \
     -extensions v3_intermediate_ca_end_certs_only \
-    -extfile extensions.conf \
-    -out "./pems/openziti_sign_ica.pem"
+    -extfile ./pki/extensions.conf \
+    -out "./pki/cas/openziti_sign_ica.cert"
 ```
 
-9. Create a client, server certificates for controlplane
+6. Create a client, server certificates for network components
 ```
-openssl genrsa -aes256 \
-    -out ./certs/openziti_controlplane_certs.key.pem 2048
-
-openssl rsa \
-    -in ./certs/openziti_controlplane_certs.key.pem \
-    -out ./certs/openziti_controlplane_certs.key.pem
+openssl genrsa \
+    -out ./pki/end_certs/openziti_network_components_certs.key 2048
 
 openssl req -new -sha256 \
-    -key ./certs/openziti_controlplane_certs.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Openziti ControlPlane Server Cert/OU=Openziti ControlPlane" \
-    -addext "subjectAltName = DNS:controller.openziti.macos,IP:127.0.0.1" \
-    -out ./certs/openziti_controlplane_server.pem.csr
+    -key ./pki/end_certs/openziti_network_components_certs.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Network Components Server Cert/OU=Openziti Network Components" \
+    -addext "subjectAltName = DNS:components.openziti.macos,IP:127.0.0.1" \
+    -out ./pki/end_certs/openziti_network_components_server.csr
 
 openssl req -new -sha256 \
-    -key ./certs/openziti_controlplane_certs.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Openziti ControlPlane Client Cert/OU=Openziti ControlPlane" \
-    -addext "subjectAltName = DNS:controller.openziti.macos,IP:127.0.0.1" \
-    -out ./certs/openziti_controlplane_client.pem.csr
+    -key ./pki/end_certs/openziti_network_components_certs.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Network Components Client Cert/OU=Openziti Network Components" \
+    -addext "subjectAltName = DNS:components.openziti.macos,IP:127.0.0.1" \
+    -out ./pki/end_certs/openziti_network_components_client.csr
 
 openssl x509 \
-    -req -in ./certs/openziti_controlplane_server.pem.csr \
-    -CA ./cas/openziti_controlplane_ica.pem \
-    -CAkey ./cas/openziti_controlplane_ica.key.pem \
+    -req -in ./pki/end_certs/openziti_network_components_server.csr \
+    -CA ./pki/cas/openziti_network_components_ica.cert \
+    -CAkey ./pki/cas/openziti_network_components_ica.key \
     -days 600 \
     -extensions v3_end_cert \
-    -extfile extensions.conf \
+    -extfile ./pki/extensions.conf \
     -copy_extensions copyall \
-    -out "./certs/openziti_controlplane_server.pem"
+    -out "./pki/end_certs/openziti_network_components_server.cert"
 
 openssl x509 \
-    -req -in ./certs/openziti_controlplane_client.pem.csr \
-    -CA ./cas/openziti_controlplane_ica.pem \
-    -CAkey ./cas/openziti_controlplane_ica.key.pem \
+    -req -in ./pki/end_certs/openziti_network_components_client.csr \
+    -CA ./pki/cas/openziti_network_components_ica.cert \
+    -CAkey ./pki/cas/openziti_network_components_ica.key \
     -days 600 \
     -extensions v3_end_cert \
-    -extfile extensions.conf \
+    -extfile ./pki/extensions.conf \
     -copy_extensions copyall \
-    -out "./certs/openziti_controlplane_client.pem"
+    -out "./pki/end_certs/openziti_network_components_client.cert"
 ```
 
-10. Create a client, server certificates for edge
+7. Create a client, server certificates for edge
 ```
-openssl genrsa -aes256 \
-    -out ./certs/openziti_edge_certs.key.pem 2048
-
-openssl rsa \
-    -in ./certs/openziti_edge_certs.key.pem \
-    -out ./certs/openziti_edge_certs.key.pem
+openssl genrsa \
+    -out ./pki/end_certs/openziti_edge_certs.key 2048
 
 openssl req -new -sha256 \
-    -key ./certs/openziti_edge_certs.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Openziti ControlPlane Server Cert/OU=Openziti ControlPlane" \
-    -addext "subjectAltName = DNS:router.openziti.macos,IP:127.0.0.1" \
-    -out ./certs/openziti_edge_server.pem.csr
+    -key ./pki/end_certs/openziti_edge_certs.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Server Cert/OU=Openziti Edge" \
+    -addext "subjectAltName = DNS:edge.openziti.localdomain,IP:127.0.0.2" \
+    -out ./pki/end_certs/openziti_edge_server.csr
 
 openssl req -new -sha256 \
-    -key ./certs/openziti_edge_certs.key.pem \
-    -subj "/C=RU/ST=Saint-Petersburg/O=Bayfut/CN=Openziti ControlPlane Client Cert/OU=Openziti ControlPlane" \
-    -addext "subjectAltName = DNS:router.openziti.macos,IP:127.0.0.1" \
-    -out ./certs/openziti_edge_client.pem.csr
+    -key ./pki/end_certs/openziti_edge_certs.key \
+    -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Client Cert/OU=Openziti Edge" \
+    -addext "subjectAltName = DNS:edge.openziti.localdomain,IP:127.0.0.2" \
+    -out ./pki/end_certs/openziti_edge_client.csr
 
 openssl x509 \
-    -req -in ./certs/openziti_edge_server.pem.csr \
-    -CA ./cas/openziti_edge_ica.pem \
-    -CAkey ./cas/openziti_edge_ica.key.pem \
+    -req -in ./pki/end_certs/openziti_edge_server.csr \
+    -CA ./pki/cas/openziti_edge_ica.cert \
+    -CAkey ./pki/cas/openziti_edge_ica.key \
     -days 600 \
     -extensions v3_end_cert \
-    -extfile extensions.conf \
+    -extfile ./pki/extensions.conf \
     -copy_extensions copyall \
-    -out "./certs/openziti_edge_server.pem"
+    -out "./pki/end_certs/openziti_edge_server.cert"
 
 openssl x509 \
-    -req -in ./certs/openziti_edge_client.pem.csr \
-    -CA ./cas/openziti_edge_ica.pem \
-    -CAkey ./cas/openziti_edge_ica.key.pem \
+    -req -in ./pki/end_certs/openziti_edge_client.csr \
+    -CA ./pki/cas/openziti_edge_ica.cert \
+    -CAkey ./pki/cas/openziti_edge_ica.key \
     -days 600 \
     -extensions v3_end_cert \
-    -extfile extensions.conf \
+    -extfile ./pki/extensions.conf \
     -copy_extensions copyall \
-    -out "./certs/openziti_edge_client.pem"
+    -out "./pki/end_certs/openziti_edge_client.cert"
 ```
 
 
-11. Create a chain of CAs for controlplane and edge in PEM container
+8. Create a chain of CAs for network components and edge in PEM container
 ```
-cat ./bayfut_root_ca.pem ./cas/openziti_ica.pem > ./cas/openziti_controlplane_cas.pem
-cp ./cas/openziti_controlplane_cas.pem ./cas/openziti_edge_cas.pem
-```
-
-12. Create a chain of certificates for server of controlplane
-```
-cat ./certs/openziti_controlplane_server.pem ./cas/openziti_controlplane_ica.pem ./cas/openziti_ica.pem ./bayfut_root_ca.pem > ./certs/openziti_controlplane-server.chain.pem
+rm ./pki/cas/openziti_network_components_cas.pem ./pki/cas/openziti_edge_cas.pem
+cat ./pki/root_ca.cert ./pki/cas/openziti_ica.cert > ./pki/cas/openziti_network_components_cas.pem
+cp ./pki/cas/openziti_network_components_cas.pem ./pki/cas/openziti_edge_cas.pem
 ```
 
-13. Create a chain of certificates for server of edge
+9. Create a chain of certificates for server of network components
 ```
-cat ./certs/openziti_edge_server.pem ./cas/openziti_edge_ica.pem ./cas/openziti_ica.pem ./bayfut_root_ca.pem > ./certs/openziti_edge-server.chain.pem
+rm ./pki/end_certs/openziti_network_components-server.chain.pem
+cat ./pki/end_certs/openziti_network_components_server.cert \
+    ./pki/cas/openziti_network_components_ica.cert \
+    ./pki/cas/openziti_ica.cert \
+    ./pki/root_ca.cert > ./pki/end_certs/openziti_network_components-server.chain.pem
 ```
 
-14. Create a chain of certificates for sign(identities) ica
+10. Create a chain of certificates for the server of edge
 ```
-cat ./cas/openziti_sign_ica.pem ./cas/openziti_ica.pem ./bayfut_root_ca.pem > ./cas/openziti_sign_ica.chain.pem
+rm ./pki/end_certs/openziti_edge-server.chain.pem
+cat ./pki/end_certs/openziti_edge_server.cert \
+    ./pki/cas/openziti_edge_ica.cert \
+    ./pki/cas/openziti_ica.cert \
+    ./pki/root_ca.cert > ./pki/end_certs/openziti_edge-server.chain.pem
 ```
 
+11. Create a chain of certificates for sign(identities) intermediate CA
+```
+rm ./pki/cas/openziti_sign_ica.chain.pem
+cat ./pki/cas/openziti_sign_ica.cert \
+    ./pki/cas/openziti_ica.cert \
+    ./pki/root_ca.cert > ./pki/cas/openziti_sign_ica.chain.pem
+```
 
-15. Init an edge
+12. Init an edge
 ```
 ziti controller edge init controller_config.yaml -u "admin" -p "admin"
 ```
+
+13. Run the controller
+```
+ziti controller run controller_config.yaml
+```
+
+14. Login into the controller
+```
+ziti edge login 127.0.0.1:1280 -u "admin" -p "admin"
+```
+
+15. Enroll the router
+```
+ziti edge delete edge-router test-edge-router
+ziti edge create edge-router test-edge-router -o test-edge-router.jwt -t -a public
+ziti router enroll test-edge-router_config.yaml --jwt test-edge-router.jwt
+```
+
+16. Run the router

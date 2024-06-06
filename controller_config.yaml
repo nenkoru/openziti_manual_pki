@@ -1,41 +1,53 @@
 v: 3
 db: ./db/ctrl.db
+
+# The identity section includes the *default* server certificate and private key used for services hosted by the controller, alternate server certificates and keys to support SNI on hosted services, client certificate and private key when making connections, and the ca bundle that the controller will use when making connections and when bootstrapping identities and routers. See the conventions that apply to all identity sections for field level detail.
+# https://openziti.io/docs/reference/configuration/controller#identity
 identity:
-  cert: ./pki/certs/openziti_controlplane_client.pem
-  server_cert: ./pki/certs/openziti_controlplane-server.chain.pem
-  key: ./pki/certs/openziti_controlplane_certs.key.pem
-  ca: ./pki/cas/openziti_controlplane_cas.pem
+  cert: ./pki/end_certs/openziti_network_components_client.cert
+  server_cert: ./pki/end_certs/openziti_network_components-server.chain.pem
+  key: ./pki/end_certs/openziti_network_components_certs.key
+  ca: ./pki/cas/openziti_network_components_cas.pem
+
+# The ctrl section configures how the controller will listen for incoming connections from routers. This includes the protocol(s) used for router connections and how those connections are managed.
+# https://openziti.io/docs/reference/configuration/controller#ctrl
 ctrl:
   options:
     advertiseAddress: 'tls:127.0.0.1:6262'
   listener: 'tls:127.0.0.1:6262'
+
 healthChecks:
   boltCheck:
     interval: 30s
     timeout: 20s
     initialDelay: 30s
+
+# The edge section instructs the controller to start the edge components. This includes all features associated with identities (e.g. identity enrollment), 3rd Party CAs, policies, edge router connections, posture checks, and more. It is highly unlikely that this section should be omitted.
+# https://openziti.io/docs/reference/configuration/controller#edge
 edge:
   api:
     sessionTimeout: 30m
-    address: 'local_host:edge'
+    address: '127.0.0.2:1280'
   enrollment:
     signingCert:
       cert: ./pki/cas/openziti_sign_ica.chain.pem
-      key: ./pki/cas/openziti_sign_ica.key.pem
+      key: ./pki/cas/openziti_sign_ica.key
     edgeIdentity:
       duration: 180m
     edgeRouter:
       duration: 180m
+# The web section is powered by XWeb. XWeb allows web APIs to be defined in code and exposed on multiple interfaces/networks through configuration alone.
 web:
   - name: client-management
     bindPoints:
-      - interface: '127.0.0.1:1280'
-        address: 'local_host:edge'
+        # if using macos: sudo ifconfig lo0 alias 127.0.0.2 up
+      - interface: '127.0.0.2:1280'
+        address: '127.0.0.2:1280'
     identity:
       ca: ./pki/cas/openziti_edge_cas.pem
-      key: ./pki/certs/openziti_edge_certs.key.pem
-      server_cert: ./pki/certs/openziti_edge-server.chain.pem
-      cert: ./pki/certs/openziti_edge_client.pem
+      key: ./pki/end_certs/openziti_edge_certs.key
+      server_cert: ./pki/end_certs/openziti_edge-server.chain.pem
+      cert: ./pki/end_certs/openziti_edge_client.cert
     options:
       idleTimeout: 5000ms
       readTimeout: 5000ms

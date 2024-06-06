@@ -14,12 +14,12 @@ end note
 
 node openzitiICA
 
-node ControlPlaneICA
+node NetworkComponentsICA
 node EdgeICA
 node SignICA
 
-node ControlPlaneServerCert
-node ControlPlaneClientCert
+node NetworkComponentsServerCert
+node NetworkComponentsClientCert
 
 node EdgeServerCert
 node EdgeClientCert
@@ -37,15 +37,16 @@ end note
 
 rootExternalCA --> openzitiICA
 
-openzitiICA --> ControlPlaneICA
+openzitiICA --> NetworkComponentsICA
 openzitiICA --> SignICA
 openzitiICA --> EdgeICA
 
-ControlPlaneICA --> ControlPlaneServerCert
-ControlPlaneICA --> ControlPlaneClientCert
+NetworkComponentsICA --> NetworkComponentsServerCert
+NetworkComponentsICA --> NetworkComponentsClientCert
 
 EdgeICA --> EdgeServerCert
 EdgeICA --> EdgeClientCert
 
 SignICA --> ManySignedIdentities
 @enduml
+

@@ -1,0 +1,51 @@
+@startuml
+node rootExternalCA
+
+
+note top of rootExternalCA
+Suppose this is the root CA of your organization that is trusted
+within the organization on every device, from the edge up to 
+the server.
+You don't need to have a read access to the private key
+of this CA. You just need to be able to sign the intermediate leaf CA.
+If you have the root CA trusted within an organization, you won't need
+to tackle with annoying HTTPs issues showing up in a browser.
+end note
+
+node openzitiICA
+
+node ControlPlaneICA
+node EdgeICA
+node SignICA
+
+node ControlPlaneServerCert
+node ControlPlaneClientCert
+
+node EdgeServerCert
+node EdgeClientCert
+
+node (ManySignedIdentities)
+
+note top of ManySignedIdentities
+The ziti controller has to have an access some intermediate CA
+to be able to sign off certs for identities.
+You could have one intermediate CA to control everything, for eg
+just openzitiICA.
+But this way if the controller node is compromised you would vulnerable
+for the total loss of trust and you would have to re-issue the whole pki.
+end note
+
+rootExternalCA --> openzitiICA
+
+openzitiICA --> ControlPlaneICA
+openzitiICA --> SignICA
+openzitiICA --> EdgeICA
+
+ControlPlaneICA --> ControlPlaneServerCert
+ControlPlaneICA --> ControlPlaneClientCert
+
+EdgeICA --> EdgeServerCert
+EdgeICA --> EdgeClientCert
+
+SignICA --> ManySignedIdentities
+@enduml

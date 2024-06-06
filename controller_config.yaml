@@ -1,0 +1,52 @@
+v: 3
+db: ./db/ctrl.db
+identity:
+  cert: ./pki/certs/openziti_controlplane_client.pem
+  server_cert: ./pki/certs/openziti_controlplane-server.chain.pem
+  key: ./pki/certs/openziti_controlplane_certs.key.pem
+  ca: ./pki/cas/openziti_controlplane_cas.pem
+ctrl:
+  options:
+    advertiseAddress: 'tls:127.0.0.1:6262'
+  listener: 'tls:127.0.0.1:6262'
+healthChecks:
+  boltCheck:
+    interval: 30s
+    timeout: 20s
+    initialDelay: 30s
+edge:
+  api:
+    sessionTimeout: 30m
+    address: 'local_host:edge'
+  enrollment:
+    signingCert:
+      cert: ./pki/cas/openziti_sign_ica.chain.pem
+      key: ./pki/cas/openziti_sign_ica.key.pem
+    edgeIdentity:
+      duration: 180m
+    edgeRouter:
+      duration: 180m
+web:
+  - name: client-management
+    bindPoints:
+      - interface: '127.0.0.1:1280'
+        address: 'local_host:edge'
+    identity:
+      ca: ./pki/cas/openziti_edge_cas.pem
+      key: ./pki/certs/openziti_edge_certs.key.pem
+      server_cert: ./pki/certs/openziti_edge-server.chain.pem
+      cert: ./pki/certs/openziti_edge_client.pem
+    options:
+      idleTimeout: 5000ms
+      readTimeout: 5000ms
+      writeTimeout: 100000ms
+      minTLSVersion: TLS1.2
+      maxTLSVersion: TLS1.3
+    apis:
+      - binding: edge-management
+        options: {}
+      - binding: edge-client
+        options: {}
+      - binding: fabric
+        options: {}
+

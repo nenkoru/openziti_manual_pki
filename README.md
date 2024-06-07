@@ -8,9 +8,9 @@ From these discussions, I understood one vital thing: if I had not created the e
 
 So, I started by making a few assumptions:
 
-There is an organization that already has a bootstrapped PKI, and the root CA of the organization is already distributed.
-The private key for the root CA is stored on an HSM module (or any trusted intermediary, in essence).
-The controller node could be compromised, and the PKI should be able to recover from this.
+1. There is an organization that already has a bootstrapped PKI, and the root CA of the organization is already distributed.
+2. The private key for the root CA is stored on an HSM module (or any trusted intermediary, in essence).
+3. The controller node could be compromised, and the PKI should be able to recover from this.
 
 By having these assumptions and this whole backstory I started my journey.
 

@@ -17,6 +17,7 @@ By having these assumptions and this whole backstory I started my journey.
 I have made this PKI by thoroughly looking through this[4] forum and two videos[5][6] as well as the from-scratch.sh[7] and this ziti-cli-functions[8] script from the quickstart.
 
 From this point refer to BOOTSTRAP_PKI.md
+
 Also take a look into pki_topology.(png|puml) 
 
 [1] https://openziti.discourse.group/t/general-architecture-questions/2210
@@ -34,3 +35,9 @@ Also take a look into pki_topology.(png|puml)
 [7] https://raw.githubusercontent.com/dovholuknf/openziti-compose/main/from-scratch.sh
 
 [8] https://get.openziti.io/ziti-cli-functions.sh
+
+---
+
+Video from OpenZiti and the host Clint going step-by-step:
+
+[![OpenZiti](https://img.youtube.com/vi/X_bvaZOAh34/0.jpg)](https://www.youtube.com/watch?v=X_bvaZOAh34)

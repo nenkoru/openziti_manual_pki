@@ -227,3 +227,17 @@ ziti router enroll test-edge-router_config.yaml --jwt test-edge-router.jwt
 ```
 ziti router run test-edge-router_config.yaml 
 ```
+
+# Extra
+
+17. Create an edge router policy allowing all identities to connect to routers
+```
+ziti edge delete edge-router-policy allEdgeRouters
+ziti edge create edge-router-policy allEdgeRouters --edge-router-roles '#public' --identity-roles '#all'
+```
+
+18. Create a service edge router policy allowing all services to use edge routers
+```
+ziti edge delete service-edge-router-policy allSvcAllRouters
+ziti edge create service-edge-router-policy allSvcAllRouters --edge-router-roles '#all' --service-roles '#all'
+```

@@ -1,23 +1,16 @@
 # Manual Bootstrapping of PKI for OpenZiti using openssl
 
-My main objective from bootstrapping and utilizing OpenZiti is to have security on the application level.
-I wanted to try out something new apart from the classic VPNs that exist nowadays like ZeroTier, Tailscale, Endpoint Security, or Fortinet VPN.
-I saw that these solutions of VPNs are half-baked in many organizations I have worked in. It always felt strange when my connectivity
-of mine was able to reach quite sensitive systems like ESB or DWH. Of course, I could have hadn't have access to these systems. But I did have a connectivity to them.
-This being that a potential intruder could have had it too! Hence the search and a great find of OpenZiti.
+My main objective in bootstrapping and utilizing OpenZiti is to achieve security at the application level. I wanted to try something new beyond the classic VPNs available today, such as ZeroTier, Tailscale, Endpoint Security, or Fortinet VPN. In many organizations I have worked with, these VPN solutions seemed half-baked. It always felt strange when my connectivity allowed me to reach highly sensitive systems like ESB or DWH. Of course, I shouldn't have had access to these systems, but I did. This meant that a potential intruder could have had access too! Hence, my search led me to the great find of OpenZiti.
 
-I have struggled to understand OpenZiti for quite some time because it was a new field for me(ZeroTrust).
-Especially the PKI the OpenZiti looked daunting and complicated.
-The tutorial didn't help much as it uses the Ziti sub-app to create the whole PKI which was not transparent to me as a learner.
-This has helped a lot in understanding how PKI works in conjunction with how the fabric works on the OpenZiti Forum.
-I started a few topics which you can find here[1][2][3].
+I struggled to understand OpenZiti for quite some time because it was a new field for me (ZeroTrust). The PKI in OpenZiti, in particular, looked daunting and complicated. The tutorial didn't help much as it used the Ziti sub-app to create the entire PKI, which was not transparent to me as a learner. However, the OpenZiti Forum helped a lot in understanding how PKI works in conjunction with the fabric. I started a few topics that you can find here [1] [2] [3].
 
-As well as having those topics I understood one vital thing; if I had not made the whole PKI manually it would have been hard to know how exactly everything works together.
+From these discussions, I understood one vital thing: if I had not created the entire PKI manually, it would have been hard to know exactly how everything works together.
 
-So I started by making a few assumptions:
-1) There is an organization that already has a bootstrapped PKI and the root CA of the organization is already distributed
-2) The private key for the root CA is stored on an HSM module(or for any trusted intermediary in essence)
-3) The controller node could be compromised and the PKI should be able to recover from this
+So, I started by making a few assumptions:
+
+There is an organization that already has a bootstrapped PKI, and the root CA of the organization is already distributed.
+The private key for the root CA is stored on an HSM module (or any trusted intermediary, in essence).
+The controller node could be compromised, and the PKI should be able to recover from this.
 
 By having these assumptions and this whole backstory I started my journey.
 

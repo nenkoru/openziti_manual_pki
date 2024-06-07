@@ -1,3 +1,6 @@
+Okay, so this markdown would walk you through of the steps it takes to bootstrap the PKI for openziti.
+Take a look into the pki_topology.(.png|puml) to see the way the PKI is bootstrapped as well as some notes.
+
 1. Create a self-signed root CA
 ```
 openssl req \
@@ -221,3 +224,6 @@ ziti router enroll test-edge-router_config.yaml --jwt test-edge-router.jwt
 ```
 
 16. Run the router
+```
+ziti router run test-edge-router_config.yaml
+```

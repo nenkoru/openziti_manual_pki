@@ -213,17 +213,17 @@ ziti controller run controller_config.yaml
 
 14. Login into the controller
 ```
-ziti edge login 127.0.0.1:1280 -u "admin" -p "admin"
+ziti edge login 127.0.0.2:1280 -u "admin" -p "admin"
 ```
 
-15. Enroll the router
+15. Enroll the router(in a separate window)
 ```
 ziti edge delete edge-router test-edge-router
 ziti edge create edge-router test-edge-router -o test-edge-router.jwt -t -a public
 ziti router enroll test-edge-router_config.yaml --jwt test-edge-router.jwt
 ```
 
-16. Run the router
+16. Run the router(in a separate window)
 ```
-ziti router run test-edge-router_config.yaml
+ziti router run test-edge-router_config.yaml 
 ```

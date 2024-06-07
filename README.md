@@ -1,4 +1,4 @@
-# Manual Bootstrapping of PKI for OpenZiti using openssl
+# Manual Bootstrapping of PKI for OpenZiti using OpenSSL
 
 My main objective in bootstrapping and utilizing OpenZiti is to achieve security at the application level. I wanted to try something new beyond the classic VPNs available today, such as ZeroTier, Tailscale, Endpoint Security, or Fortinet VPN. In many organizations I have worked with, these VPN solutions seemed half-baked. It always felt strange when my connectivity allowed me to reach highly sensitive systems like ESB or DWH. Of course, I shouldn't have had access to these systems, but I did. This meant that a potential intruder could have had access too! Hence, my search led me to the great find of OpenZiti.
 

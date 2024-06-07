@@ -170,14 +170,12 @@ openssl x509 \
 
 8. Create a chain of CAs for network components and edge in PEM container
 ```
-rm ./pki/cas/openziti_network_components_cas.pem ./pki/cas/openziti_edge_cas.pem
 cat ./pki/root_ca.cert ./pki/cas/openziti_ica.cert > ./pki/cas/openziti_network_components_cas.pem
 cp ./pki/cas/openziti_network_components_cas.pem ./pki/cas/openziti_edge_cas.pem
 ```
 
 9. Create a chain of certificates for server of network components
 ```
-rm ./pki/end_certs/openziti_network_components-server.chain.pem
 cat ./pki/end_certs/openziti_network_components_server.cert \
     ./pki/cas/openziti_network_components_ica.cert \
     ./pki/cas/openziti_ica.cert \
@@ -186,7 +184,6 @@ cat ./pki/end_certs/openziti_network_components_server.cert \
 
 10. Create a chain of certificates for the server of edge
 ```
-rm ./pki/end_certs/openziti_edge-server.chain.pem
 cat ./pki/end_certs/openziti_edge_server.cert \
     ./pki/cas/openziti_edge_ica.cert \
     ./pki/cas/openziti_ica.cert \
@@ -195,7 +192,6 @@ cat ./pki/end_certs/openziti_edge_server.cert \
 
 11. Create a chain of certificates for sign(identities) intermediate CA
 ```
-rm ./pki/cas/openziti_sign_ica.chain.pem
 cat ./pki/cas/openziti_sign_ica.cert \
     ./pki/cas/openziti_ica.cert \
     ./pki/root_ca.cert > ./pki/cas/openziti_sign_ica.chain.pem

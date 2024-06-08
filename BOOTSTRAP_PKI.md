@@ -99,13 +99,13 @@ openssl genrsa \
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_network_components_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Network Components Server Cert/OU=Openziti Network Components" \
-    -addext "subjectAltName = DNS:components.openziti.macos,IP:127.0.0.1" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.1" \
     -out ./pki/end_certs/openziti_network_components_server.csr
 
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_network_components_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Network Components Client Cert/OU=Openziti Network Components" \
-    -addext "subjectAltName = DNS:components.openziti.macos,IP:127.0.0.1" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.1" \
     -out ./pki/end_certs/openziti_network_components_client.csr
 
 openssl x509 \
@@ -137,13 +137,13 @@ openssl genrsa \
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_edge_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Server Cert/OU=Openziti Edge" \
-    -addext "subjectAltName = DNS:edge.openziti.localdomain,IP:127.0.0.2" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.2" \
     -out ./pki/end_certs/openziti_edge_server.csr
 
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_edge_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Client Cert/OU=Openziti Edge" \
-    -addext "subjectAltName = DNS:edge.openziti.localdomain,IP:127.0.0.2" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.2" \
     -out ./pki/end_certs/openziti_edge_client.csr
 
 openssl x509 \

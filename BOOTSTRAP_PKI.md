@@ -137,13 +137,13 @@ openssl genrsa \
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_edge_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Server Cert/OU=Openziti Edge" \
-    -addext "subjectAltName = DNS:localhost,IP:127.0.0.2" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.1" \
     -out ./pki/end_certs/openziti_edge_server.csr
 
 openssl req -new -sha256 \
     -key ./pki/end_certs/openziti_edge_certs.key \
     -subj "/C=US/ST=Los Angeles/O=MyBestOrg/CN=Openziti Edge Client Cert/OU=Openziti Edge" \
-    -addext "subjectAltName = DNS:localhost,IP:127.0.0.2" \
+    -addext "subjectAltName = DNS:localhost,IP:127.0.0.1" \
     -out ./pki/end_certs/openziti_edge_client.csr
 
 openssl x509 \
@@ -209,7 +209,7 @@ ziti controller run controller_config.yaml
 
 14. Login into the controller
 ```
-ziti edge login 127.0.0.2:1280 -u "admin" -p "admin"
+ziti edge login 127.0.0.1:1280 -u "admin" -p "admin"
 ```
 
 15. Enroll the router(in a separate window)

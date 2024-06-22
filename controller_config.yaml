@@ -27,7 +27,7 @@ healthChecks:
 edge:
   api:
     sessionTimeout: 30m
-    address: '127.0.0.2:1280'
+    address: '127.0.0.1:1280'
   enrollment:
     signingCert:
       cert: ./pki/cas/openziti_sign_ica.chain.pem
@@ -41,8 +41,8 @@ web:
   - name: client-management
     bindPoints:
         # if using macos: sudo ifconfig lo0 alias 127.0.0.2 up
-      - interface: '127.0.0.2:1280'
-        address: '127.0.0.2:1280'
+      - interface: '127.0.0.1:1280'
+        address: '127.0.0.1:1280'
     identity:
       ca: ./pki/cas/openziti_edge_cas.pem
       key: ./pki/end_certs/openziti_edge_certs.key

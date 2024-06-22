@@ -16,9 +16,8 @@ link:
     - binding: transport
   listeners:
     - binding:          transport
-      bind:             tls:127.0.0.3:10080
-      # if using macos: sudo ifconfig lo0 alias 127.0.0.3 up
-      advertise:        tls:127.0.0.3:10080
+      bind:             tls:0.0.0.0:10080
+      advertise:        tls:127.0.0.1:10080
       options:
         outQueueSize:   4
 
@@ -27,7 +26,7 @@ listeners:
   - binding: edge
     address: tls:0.0.0.0:3022
     options:
-      advertise: 127.0.0.3:3022
+      advertise: 127.0.0.1:3022
       connectTimeoutMs: 5000
       getSessionTimeout: 60
   - binding: tunnel
@@ -45,9 +44,10 @@ edge:
     organizationalUnit: Openziti Public Edge Router
     sans:
       dns:
-        - router.openziti.localdomain
+        - localhost
+
       ip:
-        - "127.0.0.3"
+        - "127.0.0.1"
 
 
 forwarder:

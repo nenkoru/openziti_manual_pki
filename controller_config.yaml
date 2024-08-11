@@ -1,15 +1,28 @@
+# NOTES
+# Just don't forget and try to wrap around an idea that there is a Transport Layer Security certs, which
+# just make sure the authenticity of the request, and that there are certs that are used to sign data within the TCP pipe itself
+# And yes, this config could seem a little bit out of order, especially with having 'web' with m2m relationship and 'ctrl' with just one,
+# but I bet its just the historically made solution, especially considering the modularity of the openziti with its 'edge' being added after the
+# 'fabric' has been implemented where there were none(afaik) edge api which is used with ALPN on the same port.
+
 v: 3
 db: ./db/ctrl.db
 
-# The identity section includes the *default* server certificate and private key used for services hosted by the controller, alternate server certificates and keys to support SNI on hosted services, client certificate and private key when making connections, and the ca bundle that the controller will use when making connections and when bootstrapping identities and routers. See the conventions that apply to all identity sections for field level detail.
+# The identity section includes the *default* server certificate and private key used for services hosted by the controller, 
+# alternate server certificates and keys to support SNI on hosted services, client certificate and private key when making connections, 
+# and the ca bundle that the controller will use when making connections and when bootstrapping identities and routers. 
+# See the conventions that apply to all identity sections for field level detail.
 # https://openziti.io/docs/reference/configuration/controller#identity
 identity:
+  # Used for *TLS*!
   cert: ./pki/end_certs/openziti_network_components_client.cert
   server_cert: ./pki/end_certs/openziti_network_components-server.chain.pem
   key: ./pki/end_certs/openziti_network_components_certs.key
   ca: ./pki/cas/openziti_network_components_cas.pem
 
-# The ctrl section configures how the controller will listen for incoming connections from routers. This includes the protocol(s) used for router connections and how those connections are managed.
+# The ctrl section configures how the controller will listen for incoming connections from routers. 
+# This includes the protocol(s) used for router connections and how those connections are managed.
+# Should be(not certain about it) L4 TCP custom protocol APIs from routers.
 # https://openziti.io/docs/reference/configuration/controller#ctrl
 ctrl:
   options:
@@ -22,7 +35,9 @@ healthChecks:
     timeout: 20s
     initialDelay: 30s
 
-# The edge section instructs the controller to start the edge components. This includes all features associated with identities (e.g. identity enrollment), 3rd Party CAs, policies, edge router connections, posture checks, and more. It is highly unlikely that this section should be omitted.
+# The edge section instructs the controller to start the edge components. 
+# This includes all features associated with identities (e.g. identity enrollment), 3rd Party CAs, policies, edge router connections, posture checks, and more. 
+# It is highly unlikely that this section should be omitted. L7 HTTP(s) APIs (REST API). https://openziti.io/docs/reference/developer/api/
 # https://openziti.io/docs/reference/configuration/controller#edge
 edge:
   api:
@@ -30,6 +45,11 @@ edge:
     address: '127.0.0.1:1280'
   enrollment:
     signingCert:
+      # Used for signing 'identities' which essentially represent 'end-devices' of 'end-services'.
+      # For instance 'end-device' could be a laptop which needs to be kind of registered, pretty much the same idea as k8s certificates
+      # As k8s doesn't hold the 'users' of its kube-apiserver in etcd, it just signs off certs to be used in connections, and based on those certs the trust of the
+      # issuer of the api request is guaranteed, authorization is just another level
+      # or 'end-service' could be a router, which has to have an identity, every identity comes from this intermediary
       cert: ./pki/cas/openziti_sign_ica.chain.pem
       key: ./pki/cas/openziti_sign_ica.key
     edgeIdentity:
@@ -44,6 +64,7 @@ web:
       - interface: '127.0.0.1:1280'
         address: '127.0.0.1:1280'
     identity:
+      # used for *TLS*!
       ca: ./pki/cas/openziti_edge_cas.pem
       key: ./pki/end_certs/openziti_edge_certs.key
       server_cert: ./pki/end_certs/openziti_edge-server.chain.pem

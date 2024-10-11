@@ -19,6 +19,7 @@ identity:
   server_cert: ./pki/end_certs/openziti_network_components-server.chain.pem
   key: ./pki/end_certs/openziti_network_components_certs.key
   ca: ./pki/cas/openziti_network_components_cas.pem
+trustDomain: bobs.burgers
 
 # The ctrl section configures how the controller will listen for incoming connections from routers. 
 # This includes the protocol(s) used for router connections and how those connections are managed.
@@ -28,7 +29,7 @@ ctrl:
   options:
     advertiseAddress: 'tls:127.0.0.1:6262'
   listener: 'tls:127.0.0.1:6262'
-
+trustdomain: bob.burgers
 healthChecks:
   boltCheck:
     interval: 30s

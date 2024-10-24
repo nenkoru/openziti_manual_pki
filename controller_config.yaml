@@ -15,7 +15,7 @@ db: ./db/ctrl.db
 # https://openziti.io/docs/reference/configuration/controller#identity
 identity:
   # Used for *TLS*!
-  cert: ./pki/end_certs/openziti_network_components_client.cert
+  cert: ./pki/end_certs/openziti_network_components-client.chain.pem
   server_cert: ./pki/end_certs/openziti_network_components-server.chain.pem
   key: ./pki/end_certs/openziti_network_components_certs.key
   ca: ./pki/cas/openziti_network_components_cas.pem

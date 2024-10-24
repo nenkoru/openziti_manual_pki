@@ -13,7 +13,7 @@ openssl req \
     -extensions v3_ca \
     -nodes
 ```
-2. Create an intermediate CA for Openziti
+1. Create an intermediate CA for Openziti
 ```
 openssl genrsa -out ./pki/cas/openziti_ica.key 2048
 
@@ -32,7 +32,7 @@ openssl x509 \
     -out "./pki/cas/openziti_ica.cert"
 ```
 
-3. Create a network components intermediate CA
+1. Create a network components intermediate CA
 ```
 openssl genrsa \
     -out ./pki/cas/openziti_network_components_ica.key 2048
@@ -52,7 +52,7 @@ openssl x509 \
     -out "./pki/cas/openziti_network_components_ica.cert"
 ```
 
-4. Create an edge intermediate CA
+1. Create an edge intermediate CA
 ```
 openssl genrsa \
     -out ./pki/cas/openziti_edge_ica.key 2048
@@ -71,7 +71,8 @@ openssl x509 \
     -extfile ./pki/extensions.conf \
     -out "./pki/cas/openziti_edge_ica.cert"
 ```
-5. Create a sign(identities) intermediate CA
+
+1. Create a sign(identities) intermediate CA
 ```
 openssl genrsa \
     -out ./pki/cas/openziti_sign_ica.key 2048
@@ -91,7 +92,7 @@ openssl x509 \
     -out "./pki/cas/openziti_sign_ica.cert"
 ```
 
-6. Create a client, server certificates for network components
+1. Create a client, server certificates for network components
 ```
 openssl genrsa \
     -out ./pki/end_certs/openziti_network_components_certs.key 2048
@@ -129,7 +130,7 @@ openssl x509 \
     -out "./pki/end_certs/openziti_network_components_client.cert"
 ```
 
-7. Create a client, server certificates for edge
+1. Create a client, server certificates for edge
 ```
 openssl genrsa \
     -out ./pki/end_certs/openziti_edge_certs.key 2048
@@ -168,13 +169,13 @@ openssl x509 \
 ```
 
 
-8. Create a chain of CAs for network components and edge in PEM container
+1. Create a chain of CAs for network components and edge in PEM container
 ```
 cat ./pki/root_ca.cert ./pki/cas/openziti_ica.cert > ./pki/cas/openziti_network_components_cas.pem
 cp ./pki/cas/openziti_network_components_cas.pem ./pki/cas/openziti_edge_cas.pem
 ```
 
-9. Create a chain of certificates for server of network components
+1. Create a chain of certificates for client network components
 ```
 cat ./pki/end_certs/openziti_network_components_server.cert \
     ./pki/cas/openziti_network_components_ica.cert \
@@ -182,7 +183,15 @@ cat ./pki/end_certs/openziti_network_components_server.cert \
     ./pki/root_ca.cert > ./pki/end_certs/openziti_network_components-server.chain.pem
 ```
 
-10. Create a chain of certificates for the server of edge
+1. Create a chain of certificates for server of network components
+```
+cat ./pki/end_certs/openziti_network_components_client.cert \
+    ./pki/cas/openziti_network_components_ica.cert \
+    ./pki/cas/openziti_ica.cert \
+    ./pki/root_ca.cert > ./pki/end_certs/openziti_network_components-client.chain.pem
+```
+
+1. Create a chain of certificates for the server of edge
 ```
 cat ./pki/end_certs/openziti_edge_server.cert \
     ./pki/cas/openziti_edge_ica.cert \
@@ -190,49 +199,49 @@ cat ./pki/end_certs/openziti_edge_server.cert \
     ./pki/root_ca.cert > ./pki/end_certs/openziti_edge-server.chain.pem
 ```
 
-11. Create a chain of certificates for sign(identities) intermediate CA
+1. Create a chain of certificates for sign(identities) intermediate CA
 ```
 cat ./pki/cas/openziti_sign_ica.cert \
     ./pki/cas/openziti_ica.cert \
     ./pki/root_ca.cert > ./pki/cas/openziti_sign_ica.chain.pem
 ```
 
-12. Init an edge
+1. Init an edge
 ```
 ziti controller edge init controller_config.yaml -u "admin" -p "admin"
 ```
 
-13. Run the controller
+1. Run the controller
 ```
 ziti controller run controller_config.yaml
 ```
 
-14. Login into the controller
+1. Login into the controller
 ```
 ziti edge login 127.0.0.1:1280 -u "admin" -p "admin"
 ```
 
-15. Enroll the router(in a separate window)
+1. Enroll the router(in a separate window)
 ```
 ziti edge delete edge-router test-edge-router
 ziti edge create edge-router test-edge-router -o test-edge-router.jwt -t -a public
 ziti router enroll test-edge-router_config.yaml --jwt test-edge-router.jwt
 ```
 
-16. Run the router(in a separate window)
+1. Run the router(in a separate window)
 ```
 ziti router run test-edge-router_config.yaml 
 ```
 
 # Extra
 
-17. Create an edge router policy allowing all identities to connect to routers
+1. Create an edge router policy allowing all identities to connect to routers
 ```
 ziti edge delete edge-router-policy allEdgeRouters
 ziti edge create edge-router-policy allEdgeRouters --edge-router-roles '#public' --identity-roles '#all'
 ```
 
-18. Create a service edge router policy allowing all services to use edge routers
+1. Create a service edge router policy allowing all services to use edge routers
 ```
 ziti edge delete service-edge-router-policy allSvcAllRouters
 ziti edge create service-edge-router-policy allSvcAllRouters --edge-router-roles '#all' --service-roles '#all'
